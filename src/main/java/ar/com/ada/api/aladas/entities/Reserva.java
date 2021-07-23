@@ -21,6 +21,10 @@ public class Reserva {
     @JoinColumn(name = "pasajero_id", referencedColumnName = "pasajero_id")
     private Pasajero pasajero;
 
+    // reserva = el nombre del atributo que hace referencia a la tabla
+    @OneToOne(mappedBy = "reserva", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Pasaje pasaje;
+
     @Column(name = "estado_reserva_id")
     private Integer estadoReservaId;
 
@@ -76,6 +80,21 @@ public class Reserva {
 
     public void setEstadoReservaId(EstadoReservaEnum estadoReservaId) {
         this.estadoReservaId = estadoReservaId.getValue();
+    }
+
+    public Pasaje getPasaje() {
+        return pasaje;
+    }
+
+    // public void setPasaje(Pasaje pasaje) { // Relación bidireccional a través del setter (asociar)
+    // this.pasaje = pasaje;
+    // pasaje.setReserva(this);
+    // }
+
+    public void asociarPasaje(Pasaje pasaje) {
+        this.pasaje = pasaje;
+        pasaje.setReserva(this);
+
     }
 
     public enum EstadoReservaEnum {
