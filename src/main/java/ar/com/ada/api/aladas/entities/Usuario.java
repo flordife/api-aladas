@@ -13,7 +13,6 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "usuario_id")
-    @NaturalId
     private Integer usuarioId;
 
     @NaturalId
