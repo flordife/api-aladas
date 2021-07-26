@@ -1,6 +1,6 @@
 package ar.com.ada.api.aladas.services;
 
-import java.util.List;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,4 +29,5 @@ public class AeropuertoService {
     public List<Aeropuerto> obtenerTodos() {
         return repo.findAll();
     }
+
 }
