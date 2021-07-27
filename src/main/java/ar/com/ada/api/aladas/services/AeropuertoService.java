@@ -30,4 +30,7 @@ public class AeropuertoService {
         return repo.findAll();
     }
 
+    public Aeropuerto buscarPorCodigoIATA(String codigoIATA){
+        return repo.findByCodigoIATA(codigoIATA);
+    }
 }
