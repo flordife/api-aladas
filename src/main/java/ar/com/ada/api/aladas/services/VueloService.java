@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ar.com.ada.api.aladas.entities.Aeropuerto;
 import ar.com.ada.api.aladas.entities.Vuelo;
+import ar.com.ada.api.aladas.entities.Vuelo.EstadoVueloEnum;
 import ar.com.ada.api.aladas.repos.VueloRepository;
 
 @Service
@@ -20,7 +21,11 @@ public class VueloService {
     AeropuertoService aeroService;
 
     public void crear(Vuelo vuelo) {
-        repo.save(vuelo);
+       
+            vuelo.setEstadoVueloId(EstadoVueloEnum.GENERADO);
+            repo.save(vuelo);
+        
+        
     }
 
     public Vuelo crear(Date fecha, Integer capacidad, String aeropuertoOrigenIATA, String aeropuertoDestinoIATA,
@@ -40,9 +45,9 @@ public class VueloService {
         vuelo.setPrecio(precio);
         vuelo.setCodigoMoneda(codigoMoneda);
 
-        // crear(vuelo);
-        // return vuelo
-        return repo.save(vuelo);
+        crear(vuelo);
+      
+        return vuelo;
 
     }
 
@@ -54,7 +59,17 @@ public class VueloService {
         if (!validarAeropuertoOrigenDiffDestino(vuelo))
             return ValidacionVueloDataEnum.ERROR_AEROPUERTOS_IGUALES;
 
+        if (!validarAeropuertoCreado(vuelo))
+            return ValidacionVueloDataEnum.ERROR_AEROPUERTO_NO_CREADO;
+
         return ValidacionVueloDataEnum.OK;
+    }
+
+    public boolean validarAeropuertoCreado(Vuelo vuelo){
+        if (vuelo.getAeropuertoDestino() == null || vuelo.getAeropuertoOrigen() == null){
+            return false;
+        }
+        return true;
     }
 
     public boolean validarPrecio(Vuelo vuelo) {
@@ -62,7 +77,7 @@ public class VueloService {
         if (vuelo.getPrecio() == null) {
             return false;
         }
-        if (vuelo.getPrecio().doubleValue() < 0)
+        if (vuelo.getPrecio().doubleValue() > 0)
             return true;
 
         return false;
@@ -79,6 +94,6 @@ public class VueloService {
 
     public enum ValidacionVueloDataEnum {
         OK, ERROR_PRECIO, ERROR_AEROPUERTO_ORIGEN, ERROR_AEROPUERTO_DESTINO, ERROR_FECHA, ERROR_MONEDA,
-        ERROR_CAPACIDAD_MINIMA, ERROR_CAPACIDAD_MAXIMA, ERROR_AEROPUERTOS_IGUALES, ERROR_GENERAL,
+        ERROR_CAPACIDAD_MINIMA, ERROR_CAPACIDAD_MAXIMA, ERROR_AEROPUERTOS_IGUALES, ERROR_GENERAL, ERROR_AEROPUERTO_NO_CREADO
     }
 }
