@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.*;
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "vuelo")
 public class Vuelo {
@@ -31,7 +33,8 @@ public class Vuelo {
     @Column(name = "codigo_moneda")
     private String codigoMoneda;
 
-    @OneToMany(mappedBy = "pasajero", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "vuelo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Reserva> reservas = new ArrayList<>();
 
     public Integer getVueloId() {

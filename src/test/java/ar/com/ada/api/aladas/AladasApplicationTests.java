@@ -1,20 +1,16 @@
 package ar.com.ada.api.aladas;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import java.math.BigDecimal;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestExecutionListeners;
-
-import ar.com.ada.api.aladas.entities.Aeropuerto;
-import ar.com.ada.api.aladas.entities.Vuelo;
+import ar.com.ada.api.aladas.entities.*;
 import ar.com.ada.api.aladas.entities.Vuelo.EstadoVueloEnum;
-import ar.com.ada.api.aladas.services.AeropuertoService;
-import ar.com.ada.api.aladas.services.VueloService;
+import ar.com.ada.api.aladas.services.*;
 import ar.com.ada.api.aladas.services.VueloService.ValidacionVueloDataEnum;
+
+
 
 @SpringBootTest
 class AladasApplicationTests {
@@ -62,14 +58,11 @@ class AladasApplicationTests {
 		String codigoIATAOk5 = "N39";
 
 		/*//String codigoIATAOk4 = "N  ";
-
 		//En este caso, afirmo que espero que el length del codigoIATAOk1 sea 3
 		assertEquals(3, codigoIATAOk1.length());
-
 		//En este caso, afirmo que espero qeu el resultado de la condicion
 		//sea verdaderro(en este caso, lenght == 3)
 		assertTrue(codigoIATAOk2.length() == 3);
-
 		//assertTrue(codigoIATAOk4.length() == 3);*/
 
 		Aeropuerto aeropuerto1 = new Aeropuerto();
@@ -143,14 +136,4 @@ class AladasApplicationTests {
 		assertEquals( ValidacionVueloDataEnum.ERROR_AEROPUERTOS_IGUALES, vueloService.validar(vuelo));
 	}
 
-	@Test
-	void vueloValidarAeropuertoCreado(){
-		Vuelo vuelo = new Vuelo();
-		vuelo.setPrecio(new BigDecimal(1000));
-		vuelo.setEstadoVueloId(EstadoVueloEnum.GENERADO);
-		vuelo.setAeropuertoOrigen(null);
-		vuelo.setAeropuertoDestino(null);
-
-		assertFalse(vueloService.validarAeropuertoCreado(vuelo));
-	}
 }

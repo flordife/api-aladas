@@ -1,13 +1,14 @@
 package ar.com.ada.api.aladas.services;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import ar.com.ada.api.aladas.entities.Aeropuerto;
-import ar.com.ada.api.aladas.entities.Vuelo;
+import ar.com.ada.api.aladas.entities.*;
 import ar.com.ada.api.aladas.entities.Vuelo.EstadoVueloEnum;
 import ar.com.ada.api.aladas.repos.VueloRepository;
 
@@ -15,17 +16,16 @@ import ar.com.ada.api.aladas.repos.VueloRepository;
 public class VueloService {
 
     @Autowired
-    VueloRepository repo;
+    private VueloRepository repo;
 
     @Autowired
-    AeropuertoService aeroService;
+    private AeropuertoService aeroService;
 
     public void crear(Vuelo vuelo) {
-       
-            vuelo.setEstadoVueloId(EstadoVueloEnum.GENERADO);
-            repo.save(vuelo);
-        
-        
+
+        vuelo.setEstadoVueloId(EstadoVueloEnum.GENERADO);
+        repo.save(vuelo);
+
     }
 
     public Vuelo crear(Date fecha, Integer capacidad, String aeropuertoOrigenIATA, String aeropuertoDestinoIATA,
@@ -45,8 +45,8 @@ public class VueloService {
         vuelo.setPrecio(precio);
         vuelo.setCodigoMoneda(codigoMoneda);
 
-        crear(vuelo);
-      
+        repo.save(vuelo);
+
         return vuelo;
 
     }
@@ -59,17 +59,7 @@ public class VueloService {
         if (!validarAeropuertoOrigenDiffDestino(vuelo))
             return ValidacionVueloDataEnum.ERROR_AEROPUERTOS_IGUALES;
 
-        if (!validarAeropuertoCreado(vuelo))
-            return ValidacionVueloDataEnum.ERROR_AEROPUERTO_NO_CREADO;
-
         return ValidacionVueloDataEnum.OK;
-    }
-
-    public boolean validarAeropuertoCreado(Vuelo vuelo){
-        if (vuelo.getAeropuertoDestino() == null || vuelo.getAeropuertoOrigen() == null){
-            return false;
-        }
-        return true;
     }
 
     public boolean validarPrecio(Vuelo vuelo) {
@@ -84,16 +74,26 @@ public class VueloService {
     }
 
     public boolean validarAeropuertoOrigenDiffDestino(Vuelo vuelo) {
-        /*
-         * if(vuelo.getAeropuertoDestino() != vuelo.getAeropuertoOrigen()) return true;
-         * else return false;
-         */
+        
         return vuelo.getAeropuertoDestino() != vuelo.getAeropuertoOrigen();
+       
 
     }
 
     public enum ValidacionVueloDataEnum {
         OK, ERROR_PRECIO, ERROR_AEROPUERTO_ORIGEN, ERROR_AEROPUERTO_DESTINO, ERROR_FECHA, ERROR_MONEDA,
-        ERROR_CAPACIDAD_MINIMA, ERROR_CAPACIDAD_MAXIMA, ERROR_AEROPUERTOS_IGUALES, ERROR_GENERAL, ERROR_AEROPUERTO_NO_CREADO
+        ERROR_CAPACIDAD_MINIMA, ERROR_CAPACIDAD_MAXIMA, ERROR_AEROPUERTOS_IGUALES, ERROR_GENERAL,
+    }
+
+    public Vuelo buscarPorId(Integer id) {
+        return repo.findByVueloId(id);
+    }
+
+    public void actualizar(Vuelo vuelo) {
+        repo.save(vuelo);
+    }
+
+    public List<Vuelo> traerVuelosAbiertos() {
+        return repo.findByEstadoVueloId(EstadoVueloEnum.ABIERTO.getValue());
     }
 }
