@@ -130,10 +130,23 @@ class AladasApplicationTests {
 		Vuelo vuelo = new Vuelo();
 		vuelo.setPrecio(new BigDecimal(1000));
 		vuelo.setEstadoVueloId(EstadoVueloEnum.GENERADO);
-		vuelo.setAeropuertoOrigen(116);
-		vuelo.setAeropuertoDestino(116);
+		vuelo.setAeropuertoOrigen(135);
+		vuelo.setAeropuertoDestino(135);
 
-		assertEquals( ValidacionVueloDataEnum.ERROR_AEROPUERTOS_IGUALES, vueloService.validar(vuelo));
+		assertSame(ValidacionVueloDataEnum.ERROR_AEROPUERTOS_IGUALES, vueloService.validar(vuelo));
 	}
+
+	/*@Test
+	void vueloValidarAeropuertoCreado(){
+		Vuelo vuelo = new Vuelo();
+		vuelo.setPrecio(new BigDecimal(1000));
+		vuelo.setEstadoVueloId(EstadoVueloEnum.GENERADO);
+		vuelo.setAeropuertoOrigen(null);
+		vuelo.setAeropuertoDestino(null);
+
+		assertFalse(vueloService.validarAeropuertoCreado(vuelo));
+	}*/
+
+
 
 }

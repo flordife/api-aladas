@@ -59,7 +59,17 @@ public class VueloService {
         if (!validarAeropuertoOrigenDiffDestino(vuelo))
             return ValidacionVueloDataEnum.ERROR_AEROPUERTOS_IGUALES;
 
+        if(!validarAeropuertoCreado(vuelo))
+            return ValidacionVueloDataEnum.ERROR_AEROPUERTO_NO_CREADO;
+
         return ValidacionVueloDataEnum.OK;
+    }
+
+    public boolean validarAeropuertoCreado(Vuelo vuelo){
+        if (vuelo.getAeropuertoOrigen() == null && vuelo.getAeropuertoDestino() == null){
+            return false;
+        }
+        return true;
     }
 
     public boolean validarPrecio(Vuelo vuelo) {
@@ -74,15 +84,15 @@ public class VueloService {
     }
 
     public boolean validarAeropuertoOrigenDiffDestino(Vuelo vuelo) {
-        
+
         return vuelo.getAeropuertoDestino() != vuelo.getAeropuertoOrigen();
-       
 
     }
 
     public enum ValidacionVueloDataEnum {
         OK, ERROR_PRECIO, ERROR_AEROPUERTO_ORIGEN, ERROR_AEROPUERTO_DESTINO, ERROR_FECHA, ERROR_MONEDA,
         ERROR_CAPACIDAD_MINIMA, ERROR_CAPACIDAD_MAXIMA, ERROR_AEROPUERTOS_IGUALES, ERROR_GENERAL,
+        ERROR_AEROPUERTO_NO_CREADO;
     }
 
     public Vuelo buscarPorId(Integer id) {

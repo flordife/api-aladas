@@ -11,8 +11,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Vuelo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "vuelo_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer vueloId;
 
     private Date fecha;
