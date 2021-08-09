@@ -1,12 +1,16 @@
 package ar.com.ada.api.aladas.controllers;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import ar.com.ada.api.aladas.entities.Usuario;
 import ar.com.ada.api.aladas.models.request.*;
@@ -41,8 +45,8 @@ public class AuthController {
 
         // aca creamos la persona y el usuario a traves del service.
 
-        Usuario usuario = usuarioService.crearUsuario(req.userType, req.fullName, req.country, req.identificationType,
-                req.identification,  req.email, req.password);
+        Usuario usuario = usuarioService.crearUsuario(req.userType, req.fullName, req.country, req.birthDate,
+                req.identificationType, req.identification, req.email, req.password);
 
         r.isOk = true;
         r.message = "Te registraste con exitoooo!!!!!!!";
