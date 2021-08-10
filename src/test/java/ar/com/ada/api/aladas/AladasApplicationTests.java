@@ -7,10 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ar.com.ada.api.aladas.entities.*;
 import ar.com.ada.api.aladas.entities.Vuelo.EstadoVueloEnum;
+import ar.com.ada.api.aladas.security.Crypto;
 import ar.com.ada.api.aladas.services.*;
 import ar.com.ada.api.aladas.services.VueloService.ValidacionVueloDataEnum;
-
-
 
 @SpringBootTest
 class AladasApplicationTests {
@@ -57,13 +56,13 @@ class AladasApplicationTests {
 		String codigoIATAOk4 = "N  ";
 		String codigoIATAOk5 = "N39";
 
-		/*//String codigoIATAOk4 = "N  ";
-		//En este caso, afirmo que espero que el length del codigoIATAOk1 sea 3
-		assertEquals(3, codigoIATAOk1.length());
-		//En este caso, afirmo que espero qeu el resultado de la condicion
-		//sea verdaderro(en este caso, lenght == 3)
-		assertTrue(codigoIATAOk2.length() == 3);
-		//assertTrue(codigoIATAOk4.length() == 3);*/
+		/*
+		 * //String codigoIATAOk4 = "N  "; //En este caso, afirmo que espero que el
+		 * length del codigoIATAOk1 sea 3 assertEquals(3, codigoIATAOk1.length()); //En
+		 * este caso, afirmo que espero qeu el resultado de la condicion //sea
+		 * verdaderro(en este caso, lenght == 3) assertTrue(codigoIATAOk2.length() ==
+		 * 3); //assertTrue(codigoIATAOk4.length() == 3);
+		 */
 
 		Aeropuerto aeropuerto1 = new Aeropuerto();
 		aeropuerto1.setCodigoIATA(codigoIATAOk1);
@@ -71,21 +70,18 @@ class AladasApplicationTests {
 		Aeropuerto aeropuerto2 = new Aeropuerto();
 		aeropuerto2.setCodigoIATA(codigoIATAOk2);
 
-		Aeropuerto aeropuerto3= new Aeropuerto();
+		Aeropuerto aeropuerto3 = new Aeropuerto();
 		aeropuerto3.setCodigoIATA(codigoIATAOk3);
 
-		
-		Aeropuerto aeropuerto4= new Aeropuerto();
+		Aeropuerto aeropuerto4 = new Aeropuerto();
 		aeropuerto4.setCodigoIATA(codigoIATAOk4);
 
 		assertTrue(aeropuertoService.validarCodigoIATA(aeropuerto1));
 		assertTrue(aeropuertoService.validarCodigoIATA(aeropuerto2));
 		assertTrue(aeropuertoService.validarCodigoIATA(aeropuerto3));
 
-
 		assertFalse(aeropuertoService.validarCodigoIATA(aeropuerto4));
 
-		
 	}
 
 	@Test
@@ -136,17 +132,37 @@ class AladasApplicationTests {
 		assertSame(ValidacionVueloDataEnum.ERROR_AEROPUERTOS_IGUALES, vueloService.validar(vuelo));
 	}
 
-	/*@Test
-	void vueloValidarAeropuertoCreado(){
-		Vuelo vuelo = new Vuelo();
-		vuelo.setPrecio(new BigDecimal(1000));
-		vuelo.setEstadoVueloId(EstadoVueloEnum.GENERADO);
-		vuelo.setAeropuertoOrigen(null);
-		vuelo.setAeropuertoDestino(null);
+	/*
+	 * @Test void vueloValidarAeropuertoCreado(){ Vuelo vuelo = new Vuelo();
+	 * vuelo.setPrecio(new BigDecimal(1000));
+	 * vuelo.setEstadoVueloId(EstadoVueloEnum.GENERADO);
+	 * vuelo.setAeropuertoOrigen(null); vuelo.setAeropuertoDestino(null);
+	 * 
+	 * assertFalse(vueloService.validarAeropuertoCreado(vuelo)); }
+	 */
 
-		assertFalse(vueloService.validarAeropuertoCreado(vuelo));
-	}*/
+	@Test
+	void testearEncriptacion() {
 
+		String contraseñaImaginaria = "pitufosasesinos";
+		String contraseñaImaginariaEncriptada = Crypto.encrypt(contraseñaImaginaria, "palabra");
 
+		String contraseñaImaginariaEncriptadaDesencriptada = Crypto.decrypt(contraseñaImaginariaEncriptada, "palabra");
+
+		// assertTrue(contraseñaImaginariaEncriptadaDesencriptada.equals(contraseñaImaginaria));
+		assertEquals(contraseñaImaginariaEncriptadaDesencriptada, contraseñaImaginaria);
+	}
+
+	@Test
+	void testearContraseña() {
+		Usuario usuario = new Usuario();
+
+		usuario.setUsername("Diana@gmail.com");
+		usuario.setPassword("qp5TPhgUtIf7RDylefkIbw==");
+		usuario.setEmail("Diana@gmail.com");
+
+		assertFalse(!usuario.getPassword().equals(Crypto.encrypt("AbcdE23", usuario.getUsername().toLowerCase())));
+
+	}
 
 }

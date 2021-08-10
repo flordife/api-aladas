@@ -1,13 +1,9 @@
 package ar.com.ada.api.aladas.services;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-
+import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import ar.com.ada.api.aladas.entities.*;
 import ar.com.ada.api.aladas.entities.Vuelo.EstadoVueloEnum;
 import ar.com.ada.api.aladas.repos.VueloRepository;
@@ -85,7 +81,7 @@ public class VueloService {
 
     public boolean validarAeropuertoOrigenDiffDestino(Vuelo vuelo) {
 
-        return vuelo.getAeropuertoDestino() != vuelo.getAeropuertoOrigen();
+        return vuelo.getAeropuertoDestino().intValue() != vuelo.getAeropuertoOrigen().intValue();
 
     }
 
