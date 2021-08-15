@@ -8,12 +8,17 @@ import ar.com.ada.api.aladas.entities.*;
 
 @Service
 public class PasajeroService {
+
     @Autowired
     PasajeroRepository repo;
 
     public void crearPasajero(Pasajero pasajero) {
         repo.save(pasajero);
 
+    }
+
+    public Pasajero buscarPorId(Integer id) {
+        return repo.findByPasajeroId(id);
     }
 
 }
