@@ -1,8 +1,13 @@
 package ar.com.ada.api.aladas.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ar.com.ada.api.aladas.entities.*;
+import ar.com.ada.api.aladas.entities.Usuario.TipoUsuarioEnum;
 import ar.com.ada.api.aladas.models.request.EstadoVueloRequest;
 import ar.com.ada.api.aladas.models.response.GenericResponse;
 import ar.com.ada.api.aladas.services.*;
@@ -10,13 +15,15 @@ import static ar.com.ada.api.aladas.services.VueloService.ValidacionVueloDataEnu
 import java.util.*;
 import org.springframework.web.bind.annotation.GetMapping;
 
-
 @RestController
 public class VueloController {
 
     private VueloService service;
 
     private AeropuertoService aeropuertoService;
+
+    @Autowired
+    UsuarioService usuarioService;
 
     public VueloController(VueloService service, AeropuertoService aeropuertoService) {
         this.service = service;
@@ -50,16 +57,24 @@ public class VueloController {
     public ResponseEntity<GenericResponse> putActualizarEstadoVuelo(@PathVariable Integer id,
             @RequestBody EstadoVueloRequest estadoVuelo) {
 
-        GenericResponse r = new GenericResponse();
-        r.isOk = true;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        Usuario usuario = usuarioService.buscarPorUsername(username);
 
-        Vuelo vuelo = service.buscarPorId(id);
-        vuelo.setEstadoVueloId(estadoVuelo.estado);
-        service.actualizar(vuelo);
+        if (usuario.getTipoUsuario() == TipoUsuarioEnum.STAFF) {
+            GenericResponse r = new GenericResponse();
+            r.isOk = true;
 
-        r.message = "Estado del vuelo actualizado";
+            Vuelo vuelo = service.buscarPorId(id);
+            vuelo.setEstadoVueloId(estadoVuelo.estado);
+            service.actualizar(vuelo);
 
-        return ResponseEntity.ok(r);
+            r.message = "Estado del vuelo actualizado";
+
+            return ResponseEntity.ok(r);
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
     @GetMapping("/api/vuelos/abiertos")

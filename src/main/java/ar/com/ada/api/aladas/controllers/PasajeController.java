@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 import ar.com.ada.api.aladas.entities.Pasaje;
 import ar.com.ada.api.aladas.models.request.InfoPasajeNuevo;
 import ar.com.ada.api.aladas.models.response.GenericResponse;
+import ar.com.ada.api.aladas.models.response.PasajeResponse;
 import ar.com.ada.api.aladas.services.PasajeService;
+import ar.com.ada.api.aladas.services.PasajeService.ValidacionPasajeDataEnum;
 
 @RestController
 public class PasajeController {
@@ -18,16 +20,28 @@ public class PasajeController {
     PasajeService service;
 
     @PostMapping("api/pasajes")
-    public ResponseEntity<GenericResponse> emitir(@RequestBody InfoPasajeNuevo infoPasajes) {
+    public ResponseEntity<?> emitir(@RequestBody InfoPasajeNuevo infoPasajes) {
 
-        GenericResponse respuesta = new GenericResponse();
+        PasajeResponse respuesta = new PasajeResponse();
 
-        Pasaje pasaje = service.emitir(infoPasajes.reservaId);
+        ValidacionPasajeDataEnum resultado = service.validar(infoPasajes.reservaId);
 
-        respuesta.message = "El pasaje ha sido generada correctamente.";
-        respuesta.isOk = true;
-        respuesta.id = pasaje.getPasajeId();
+        if (resultado == ValidacionPasajeDataEnum.OK) {
+            Pasaje pasaje = service.emitir(infoPasajes.reservaId);
 
-        return ResponseEntity.ok(respuesta);
+            respuesta.fechaDeEmision = pasaje.getFechaEmision();
+            respuesta.infoDePago = "Abonado";
+            respuesta.message = "El pasaje ha sido emitido correctamente";
+            respuesta.reservaId = pasaje.getReserva().getReservaId();
+            respuesta.vueloId = pasaje.getReserva().getVuelo().getVueloId();
+
+            return ResponseEntity.ok(respuesta);
+        } else {
+            GenericResponse rta = new GenericResponse();
+            rta.isOk = false;
+            rta.message = "Error(" + resultado.toString() + ")";
+
+            return ResponseEntity.badRequest().body(rta);
+        }
     }
 }

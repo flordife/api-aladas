@@ -3,12 +3,16 @@ package ar.com.ada.api.aladas.controllers;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import ar.com.ada.api.aladas.entities.Aeropuerto;
+import ar.com.ada.api.aladas.entities.*;
+import ar.com.ada.api.aladas.entities.Usuario.TipoUsuarioEnum;
 import ar.com.ada.api.aladas.models.response.GenericResponse;
-import ar.com.ada.api.aladas.services.AeropuertoService;
+import ar.com.ada.api.aladas.services.*;
 import ar.com.ada.api.aladas.services.AeropuertoService.ValidacionAeropuertoDataEnum;
 
 @RestController
@@ -16,6 +20,9 @@ public class AeropuertoController {
 
     @Autowired
     AeropuertoService service;
+
+    @Autowired
+    UsuarioService usuarioService;
 
     @PostMapping("/api/aeropuertos")
     public ResponseEntity<GenericResponse> crear(@RequestBody Aeropuerto aeropuerto) {
@@ -45,22 +52,20 @@ public class AeropuertoController {
 
     @GetMapping("api/aeropuertos/{codigoIATA}")
     public ResponseEntity<Aeropuerto> obtenerAeropuertoPorCodigoIATA(@PathVariable String codigoIATA) {
-        Aeropuerto aeropuerto = service.buscarPorCodigoIATA(codigoIATA);
-        if (aeropuerto == null) {
-            return ResponseEntity.badRequest().build();
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        Usuario usuario = usuarioService.buscarPorUsername(username);
+        
+        if (usuario.getTipoUsuario() == TipoUsuarioEnum.STAFF){
+            Aeropuerto aeropuerto = service.buscarPorCodigoIATA(codigoIATA);
+            if (aeropuerto == null) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            return ResponseEntity.ok(aeropuerto);
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
-        return ResponseEntity.ok(aeropuerto);
     }
-
-    // NO FUNCIONA - VERIFICAR QUÉ PASA
-    @GetMapping("api/aeropuertos/{id}")
-    public ResponseEntity<Aeropuerto> obtenerAeropuertoPorId(@PathVariable Integer id) {
-        Aeropuerto aeropuerto = service.buscarPorAeropuertoId(id);
-        if (aeropuerto == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(aeropuerto);
-    }
-
 }

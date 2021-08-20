@@ -33,7 +33,8 @@ public class PasajeService {
         Integer nuevaCapacidad = reserva.getVuelo().getCapacidad() - 1;
         reserva.getVuelo().setCapacidad(nuevaCapacidad);
 
-        /* problema concurrencia
+        /*
+         * problema concurrencia
          * "update vuelo set capacidad = 29 where vueloid = 99 and capacidad = 30"
          * 
          * "update vuelo set capacidad = 29 where vueloid = 99 and capacidad = 30"
@@ -44,5 +45,26 @@ public class PasajeService {
         return pasaje;
 
     }
-    
+
+    public ValidacionPasajeDataEnum validar(Integer pasajeId) {
+        if (validarReservaExiste(pasajeId)) {
+            return ValidacionPasajeDataEnum.ERROR_ID_RESERVA;
+        } else {
+            return ValidacionPasajeDataEnum.OK;
+        }
+    }
+
+    public enum ValidacionPasajeDataEnum {
+        OK, ERROR_ID_RESERVA;
+    }
+
+    public boolean validarReservaExiste(Integer reservaId) {
+        Reserva reserva = resService.buscarPorId(reservaId);
+        if (reserva.getReservaId() == null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
 }

@@ -1,16 +1,27 @@
 package ar.com.ada.api.aladas.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
+import ar.com.ada.api.aladas.entities.Reserva;
 import ar.com.ada.api.aladas.entities.Usuario;
+import ar.com.ada.api.aladas.entities.Usuario.TipoUsuarioEnum;
 import ar.com.ada.api.aladas.models.request.InfoReservaNueva;
 import ar.com.ada.api.aladas.models.response.GenericResponse;
+import ar.com.ada.api.aladas.models.response.ReservaResponse;
 import ar.com.ada.api.aladas.services.ReservaService;
 import ar.com.ada.api.aladas.services.UsuarioService;
+import ar.com.ada.api.aladas.services.ReservaService.ValidacionReservaDataEnum;
 
 @RestController
 public class ReservaController {
@@ -21,26 +32,61 @@ public class ReservaController {
     @Autowired
     UsuarioService usuarioService;
 
-    @PostMapping("api/reservas")
-    public ResponseEntity<GenericResponse> generarReserva(@RequestBody InfoReservaNueva infoReserva) {
-        GenericResponse rta = new GenericResponse();
+    @PostMapping("/api/reservas")
+    public ResponseEntity<?> generarReserva(@RequestBody InfoReservaNueva infoReserva) {
+        ReservaResponse rta = new ReservaResponse();
 
-        // Obtengo quién está del otro lado autenticado
+        // Obtengo a quien esta autenticado del otro lado
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        // De lo que está autenticado, obtengo su username
+        // De lo que esta autenticado, obtengo su USERNAME
         String username = authentication.getName();
-
         // Buscar el usuario por username
         Usuario usuario = usuarioService.buscarPorUsername(username);
 
-        Integer numeroReserva = service.generarReserva(infoReserva.vueloId, usuario.getPasajero().getPasajeroId());
+        if (usuario.getTipoUsuario() == TipoUsuarioEnum.PASAJERO) {
 
-        rta.id = numeroReserva;
-        rta.isOk = true;
-        rta.message = "Reserva creada";
+            ValidacionReservaDataEnum resultado = service.validarReserva(infoReserva.vueloId);
+            if (resultado == ValidacionReservaDataEnum.OK) {
+                // con el usuario, obtengo el pasajero, y con ese, obtengo el Id
+                Reserva reserva = service.generarReserva(infoReserva.vueloId, usuario.getPasajero().getPasajeroId());
 
-        return ResponseEntity.ok(rta);
+                rta.fechaEmision = reserva.getFechaEmision();
+                rta.fechaVencimiento = reserva.getFechaEmision();
+                rta.reservaId = reserva.getReservaId();
+                rta.message = "Reserva fue creada exitosamente.";
+
+                return ResponseEntity.ok(rta);
+            } else {
+                GenericResponse respuesta = new GenericResponse();
+                respuesta.isOk = false;
+                respuesta.message = "Error(" + resultado.toString() + ")";
+
+                return ResponseEntity.badRequest().body(respuesta);
+            }
+        } else {
+
+            GenericResponse respuesta = new GenericResponse();
+            respuesta.isOk = false;
+            respuesta.message = "Deberá loguearse como Pasajero para reservar";
+
+            return ResponseEntity.badRequest().body(respuesta);
+        }
+
+    }
+
+    @GetMapping("api/reservas/vuelos/{vueloId}")
+    public ResponseEntity<List<Reserva>> obtenerReservasPorVuelo(@PathVariable Integer vueloId) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        Usuario usuario = usuarioService.buscarPorUsername(username);
+
+        if (usuario.getTipoUsuario() == TipoUsuarioEnum.STAFF) {
+            List<Reserva> reservas = service.traerReservasPorVuelo(vueloId);
+            return ResponseEntity.ok(reservas);
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
 }
