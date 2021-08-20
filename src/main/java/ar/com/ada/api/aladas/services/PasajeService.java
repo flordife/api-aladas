@@ -47,7 +47,7 @@ public class PasajeService {
     }
 
     public ValidacionPasajeDataEnum validar(Integer pasajeId) {
-        if (validarReservaExiste(pasajeId)) {
+        if (!validarReservaExiste(pasajeId)) {
             return ValidacionPasajeDataEnum.ERROR_ID_RESERVA;
         } else {
             return ValidacionPasajeDataEnum.OK;
